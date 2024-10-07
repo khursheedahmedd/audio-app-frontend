@@ -47,7 +47,7 @@ const TextToVoice = () => {
                 headers: {
                     accept: "*/*",
                     "content-type": "application/json",
-                    Authorization: "Bearer sk2DrCkKnue5Ouh0NetFjt6HBee4V-0pyp8wexJTJDk=", // Replace with your actual Speechify API key
+                    Authorization: `Bearer ${import.meta.env.VITE_SPEECHIFY_API_KEY}`, // Replace with your actual Speechify API key
                 },
                 body: JSON.stringify({
                     input: textInput, // Use the text provided by the user
@@ -91,7 +91,7 @@ const TextToVoice = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center">
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center px-2 py-[7rem]">
             <div className="w-full max-w-lg p-4 bg-white rounded-lg shadow-md mt-10">
                 <h1 className="text-2xl font-bold mb-4">Text to Voice</h1>
 

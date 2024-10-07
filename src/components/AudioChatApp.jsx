@@ -1,17 +1,18 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import Groq from "groq-sdk"; // Import Groq SDK
-import { ElevenLabsClient } from "elevenlabs"; // Import Eleven Labs Client
+import { ElevenLabsClient, ElevenLabs } from "elevenlabs"; // Import Eleven Labs Client
 
-const groq = new Groq({ apiKey: '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', dangerouslyAllowBrowser: true });
+const groq = new Groq({ apiKey: import.meta.env.VITE_GROQ_API_KEY, dangerouslyAllowBrowser: true });
+const client = new ElevenLabsClient({ apiKey: import.meta.env.VITE_ELVEN_LAB_API_KEY });
 
 const AudioChatApp = () => {
     const [messages, setMessages] = useState([]);
     const [personality, setPersonality] = useState("");
     const [voiceSample, setVoiceSample] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [setupComplete, setSetupComplete] = useState(true);
-    const [voiceId, setVoiceId] = useState(null); // For Eleven Labs voice ID
+    const [setupComplete, setSetupComplete] = useState(false);
+    const [voiceId, setVoiceId] = useState(); // For Eleven Labs voice ID
     const [textInput, setTextInput] = useState("");
 
     const [isRecording, setIsRecording] = useState(false);
@@ -58,7 +59,7 @@ const AudioChatApp = () => {
 
         try {
             // Upload voice sample to Eleven Labs using ElevenLabsClient
-            const client = new ElevenLabsClient({ apiKey: 'sk_39920a0e8abd2ad20f3a54e666117fdcee879a48963e6d7a' });
+
             // Since voiceSample is already a file object, you can directly append it to FormData
             const formData = new FormData();
             formData.append("files", voiceSample); // voiceSample is the File object from the input
@@ -69,7 +70,7 @@ const AudioChatApp = () => {
                 name: "Deceased Person Voice", // Name for the cloned voice
             });
 
-            setVoiceId(voiceCloneResponse.voiceId); // Set the voice ID for further use
+            setVoiceId(voiceCloneResponse.voice_id); // Set the voice ID for further use
 
             // Send personality to Groq
             await groq.chat.completions.create({
@@ -214,45 +215,89 @@ const AudioChatApp = () => {
                 { sender: "bot", text: llmTextResponse },
             ]);
 
-            const url = "https://api.sws.speechify.com/v1/audio/speech";
+            // const url = "https://api.sws.speechify.com/v1/audio/speech";
 
-            const options = {
-                method: "POST",
-                headers: {
-                    accept: "*/*",
-                    "content-type": "application/json",
-                    Authorization: 'Bearer sk2DrCkKnue5Ouh0NetFjt6HBee4V-0pyp8wexJTJDk=', // Use environment variables for API keys in production
-                },
-                body: JSON.stringify({
-                    input: llmTextResponse,
-                    language: "en",
-                    model: "simba-english",
-                    voice_id: "Emily",
-                }),
-            };
+            console.log("Voice Id: ", voiceId)
 
-            try {
-                const response = await fetch(url, options);
+            generateAudio(llmTextResponse, voiceId);
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Speechify API Error: ${errorText}`);
-                }
+            // const options = {
+            //     method: "POST",
+            //     headers: {
+            //         accept: "*/*",
+            //         "content-type": "application/json",
+            //         Authorization: 'Bearer sk2DrCkKnue5Ouh0NetFjt6HBee4V-0pyp8wexJTJDk=', // Use environment variables for API keys in production
+            //     },
+            //     body: JSON.stringify({
+            //         input: llmTextResponse,
+            //         language: "en",
+            //         model: "simba-english",
+            //         voice_id: voiceId,
+            //     }),
+            // };
 
-                const json = await response.json();
-                console.log("API Response: ", json);
 
-                // Check for audio data in base64
-                if (json.audio_data) {
-                    // Play the base64-encoded audio
-                    playBase64Audio(json.audio_data, json.audio_format);
-                } else {
-                    console.error("No audio data returned from Speechify API.");
-                }
+            // try {
+            //     const audioResponse = await client.textToSpeech.convert('FurrYWrZshjUqLRf3FsJ', {
+            //         optimize_streaming_latency: ElevenLabs.OptimizeStreamingLatency.Zero,
+            //         output_format: ElevenLabs.OutputFormat.Mp32205032, // MP3 format
+            //         text: llmTextResponse,
+            //         voice_settings: {
+            //             stability: 0.1, // Control how stable the voice is
+            //             similarity_boost: 0.3, // Control how much the voice should match its original style
+            //             style: 0.2, // Style tuning
+            //         },
+            //     });
 
-            } catch (error) {
-                console.error("Error with Speechify API: ", error);
-            }
+            //     console.log(audioResponse); // Log the audio response for debugging
+
+            //     // Assuming the response is a stream
+            //     const audioStream = audioResponse.body; // get the readable stream
+            //     if (audioStream) {
+            //         const reader = audioStream.getReader();
+            //         const chunks = [];
+            //         let result;
+
+            //         // Read the stream until it's done
+            //         while (!(result = await reader.read()).done) {
+            //             chunks.push(result.value);
+            //         }
+
+            //         // Convert chunks to a Blob
+            //         const audioBlob = new Blob(chunks, { type: 'audio/mp3' });
+            //         const audioUrl = URL.createObjectURL(audioBlob);
+            //         const audio = new Audio(audioUrl);
+            //         audio.play();
+            //     } else {
+            //         console.error("No audio stream available.");
+            //     }
+
+            // } catch (error) {
+            //     console.error("Error generating audio:", error);
+            // }
+
+            // try {
+            //     const response = await fetch(url, options);
+
+            //     if (!response.ok) {
+            //         const errorText = await response.text();
+            //         throw new Error(`Speechify API Error: ${errorText}`);
+            //     }
+
+            //     const json = await response.json();
+            //     console.log("API Response: ", json);
+
+            //     // Check for audio data in base64
+            //     if (json.audio_data) {
+            //         // Play the base64-encoded audio
+            //         playBase64Audio(json.audio_data, json.audio_format);
+            //     } else {
+            //         console.error("No audio data returned from Speechify API.");
+            //     }
+
+            // } catch (error) {
+            //     console.error("Error with Speechify API: ", error);
+            // }
         } catch (error) {
             console.error("Error processing question:", error);
         } finally {
@@ -262,10 +307,64 @@ const AudioChatApp = () => {
     };
 
 
+    async function generateAudio(text, voiceId) {
+        const apiKey = "sk_976b7b139be2649501363189515ebbe7e0f7ca52c82d7077"; // replace with your actual API key
+        const apiUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+
+        const requestBody = {
+            text: text,
+            output_format: "mp3_44100_128", // or any format you prefer
+            voice_settings: {
+                stability: 0.1,
+                similarity_boost: 0.3,
+                style: 0.2,
+            },
+        };
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'xi-api-key': apiKey,
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+
+            const audioStream = response.body;
+            if (audioStream) {
+                const reader = audioStream.getReader();
+                const chunks = [];
+                let result;
+
+                // Read the stream until it's done
+                while (!(result = await reader.read()).done) {
+                    chunks.push(result.value);
+                }
+
+                // Convert chunks to a Blob
+                const audioBlob = new Blob(chunks, { type: 'audio/mp3' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                audio.play();
+            } else {
+                console.error("No audio stream available.");
+            }
+        } catch (error) {
+            console.error("Error generating audio:", error);
+        }
+    }
+
+
+
 
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4 py-[7rem]">
             {!setupComplete ? (
                 <div className="w-full max-w-lg p-6 bg-white rounded-lg shadow-md">
                     <h1 className="text-2xl font-bold mb-4">Voice and Personality Setup</h1>

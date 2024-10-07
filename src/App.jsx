@@ -1,33 +1,23 @@
-import './App.css'
+
 import AudioChatApp from './components/AudioChatApp'
-import ErrorBoundary from './components/ErrorBoundary'
+import Home from './components/Home'
+import Navbar from './components/Navbar'
 import TextToVoice from './components/TextToVoice'
-import { useState } from 'react'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 
 function App() {
-  const [selectedComponent, setSelectedComponent] = useState(null)
 
   return (
     <>
-      <div>
-        {/* <h1>Choose an Option:</h1> */}
-        <div>
-          <button onClick={() => setSelectedComponent('audioChat')} className='bg-gray-600 text-white p-2 rounded-lg mr-2 mb-2'>Talk to lost friend</button>
-          <button onClick={() => setSelectedComponent('textToVoice')} className='bg-gray-600 text-white p-2 rounded-lg mb-2'>Get back your voice</button>
-        </div>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route exact path="/" element={<Home />} />
+          <Route exact path='/talk-to-lost-friend' element={<AudioChatApp />} />
+          <Route exact path='/get-back-your-voice' element={<TextToVoice />} />
+        </Routes>
 
-        {selectedComponent === 'audioChat' && (
-          <ErrorBoundary>
-            <AudioChatApp />
-          </ErrorBoundary>
-        )}
-
-        {selectedComponent === 'textToVoice' && (
-          <ErrorBoundary>
-            <TextToVoice />
-          </ErrorBoundary>
-        )}
-      </div>
+      </Router>
     </>
   )
 }
