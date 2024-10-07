@@ -308,7 +308,7 @@ const AudioChatApp = () => {
 
 
     async function generateAudio(text, voiceId) {
-        const apiKey = "sk_976b7b139be2649501363189515ebbe7e0f7ca52c82d7077"; // replace with your actual API key
+        const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY; // replace with your actual API key
         const apiUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
 
         const requestBody = {
