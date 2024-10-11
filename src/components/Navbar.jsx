@@ -15,8 +15,8 @@ const Navbar = () => {
     return (
         <nav className="bg-blue-600 text-white py-4 shadow-md px-6">
             <div className="container mx-auto flex justify-between items-center">
-                <div className="text-xl font-bold">
-                    <Link to="/" onClick={closeMenu}>AudioApp</Link>
+                <div className="text-xl font-bold hover:text-gray-400">
+                    <Link to="/" onClick={closeMenu}>MyVoice</Link>
                 </div>
 
                 {/* Hamburger menu for mobile */}
@@ -36,14 +36,17 @@ const Navbar = () => {
 
                 {/* Navbar items for larger screens */}
                 <div className="hidden md:flex md:space-x-4 z-10">
-                    <Link to="/" className="hover:font-bold  px-3 py-2 rounded-md">
+                    {/* <Link to="/" className="hover:text-gray-400  px-3 py-2 rounded-md">
                         Home
-                    </Link>
-                    <Link to="/talk-to-lost-friend" className="hover:font-bold px-3 py-2 rounded-md">
+                    </Link> */}
+                    <Link to="/talk-to-lost-friend" className="hover:text-gray-400 px-3 py-2 rounded-md">
                         Talk to Lost Friend
                     </Link>
-                    <Link to="/get-back-your-voice" className="hover:font-bold px-3 py-2 rounded-md">
+                    <Link to="/get-back-your-voice" className="hover:text-gray-400 px-3 py-2 rounded-md">
                         Get Back Your Voice
+                    </Link>
+                    <Link to="/talk-to-historical-personality" className="hover:text-gray-400 px-3 py-2 rounded-md">
+                        Talk to Historical Personality
                     </Link>
                 </div>
             </div>
@@ -59,14 +62,17 @@ const Navbar = () => {
                     </button>
                 </div>
                 <div className="flex flex-col space-y-4 p-4">
-                    <Link to="/" className="hover:bg-blue-500 px-3 py-2 rounded-md" onClick={closeMenu}>
+                    {/* <Link to="/" className="hover:bg-blue-500 px-3 py-2 rounded-md" onClick={closeMenu}>
                         Home
-                    </Link>
+                    </Link> */}
                     <Link to="/talk-to-lost-friend" className="hover:bg-blue-500 px-3 py-2 rounded-md" onClick={closeMenu}>
                         Talk to Lost Friend
                     </Link>
                     <Link to="/get-back-your-voice" className="hover:bg-blue-500 px-3 py-2 rounded-md" onClick={closeMenu}>
                         Get Back Your Voice
+                    </Link>
+                    <Link to="/talk-to-historical-personality" className="hover:bg-blue-500 px-3 py-2 rounded-md" onClick={closeMenu}>
+                        Talk to Historical Personality
                     </Link>
                 </div>
             </div>
